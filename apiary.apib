@@ -1,0 +1,141 @@
+FORMAT: 1A
+HOST: http://polls.apiblueprint.org/
+
+# catch
+Store and retrieve tagged (fishing) catch information.
+
+## Data Structures
+
+### Tag
++ type (enum[string], required)
+ + members
+   + location
+   + angler
++ value: jon_the_poacher (string, required)
+
+### Filter
++ type (enum[string], required)
+ + members
+   + fish
+   + location
+   + angler
++ value: jon_the_poacher (string, required)
+
+### Fish
++ species: carp (string)
++ date: `2016-04-26T08:46:27Z` (string)
++ userId: 8743jkh34 (string, required)
++ coordinates (object)
+  + lat: 51.068785 (string, required)
+  + long: `-1.794472` (string, required)
++ tags (array[Tag])
+
+### FishOut
++ id: 5948f498ab3a21b0ad9576a4 (string, required)
++ Include Fish
++ image: `https://s3-eu-west-1.amazonaws.com/jobbings.fyb/uploads/b160aa00-55a0-11e7-a14c-a72114f9033d.jpg?AWSAccessKeyId=AKIAIN6YFSMD6WJQHNWQ&Expires=1497954332&Signature=tQFT%2BrAymCwqI6cL0gHYjl60rR8%3D` (string, optional)
+
+### User
++ id: `8743jkh34` (string, required)
++ email: `jonsmith@gmail.com` (string, required)
++ username: `jon_the_poacher` (string, required)
+
+### Location
++ id: `ash87123ss` (string, required)
++ tag: `thames,shepperton marina` (string, optional)
++ lat: `51.0583557` (number, optional)
++ long: `-1.7907422` (number, optional)
+
+
+## Filters Collection [/filters]
+
+### Get Fish Filters [GET /fishes]
+
++ Response 200 (application/json)
+
+    + Attributes
+        + data (array)
+            + value: carp
+            + value: salmon
+            + value: roach
+                
+                
+### Get Fish Filters [GET /locations]
+
++ Response 200 (application/json)
+
+    + Attributes
+        + data (array)
+            + value: walton
+            + value: chertsey
+            + value: shepperton-lock
+                
+### Get Angler Filters [GET /anglers]
+
++ Response 200 (application/json)
+
+    + Attributes
+        + data (array)
+            + value: bob
+            + value: susie
+            + value: derek
+                
+## Catches Collection [/catches]
+
+### Get Catches [GET/catches{?fishFilter,anglerFilter,locationFilter,count,firstId}]
+
+Request catches, include optional filter parameters and start and number of catches
+
++ Request (application/json)
+
++ Parameters
+    + fishFilter: `carp,chub,tench` (string, optional) - Comma-separated list of fish filter terms
+    + anglerFilter: `jon_the_poacher,jake_rodman` (string, optional) - Comma-separated list of angler filter terms
+    + locationFilter: `thames,shepperton_lock` (string, optional) - Comma-separated list of location filter terms
+    + fromId: 59f377614110ff94707b6bfc (number, optional) - Index into records of catches (assumed to be the data store primary key (ObjectId in mongo) and assumed to be the first record if no value is specified) 
+    + count (enum, optional)
+        + Default 10
+        + Members
+            + 10
+            + 20
+            + 50
+        
++ Response 200 (application/json)
+
+    + Attributes
+        + data (array[FishOut, FishOut, FishOut])
+
+### Get A Catch By Id [GET /catches/{id}]
+
+Request a catch by id.
+
++ Request (application/json)
+
++ Parameters
+    + id: `12345` (string, required) - unique identifier for the catch
+        
++ Response 200 (application/json)
+
+    + Attributes
+        + data (FishOut)
+
+### Create a New Catch [POST /api/catches]
+
+Create a new catch record. Got a couple of queries here:
+ 
++ Request (multipart/form-data)
+
+    + Attributes
+        + data 
+                + newCatch (Fish, required)
+                + image (string, required) - the image file URI
+        
++ Response 201 (application/json)
+
+    + Headers
+
+            Location: /catch/824234
+
+    + Attributes
+        + data (object, required)
+            + newCatch (FishOut, required)
